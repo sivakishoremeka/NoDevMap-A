@@ -105,7 +105,7 @@ public class MainActivity extends Activity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-	
+
 	public void logout() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this,
 				AlertDialog.THEME_HOLO_LIGHT);
@@ -123,14 +123,16 @@ public class MainActivity extends Activity {
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						Intent intent = new Intent(MainActivity.this,
-								DoBGTasksService.class);
-						intent.putExtra("CLIENTID",
-								((MyApplication) getApplicationContext())
-										.getClientId());
-						intent.putExtra(DoBGTasksService.App_State_Req,
-								SetAppState.SET_INACTIVE.ordinal());
-						startService(intent);
+						if (MyApplication.isActive) {
+							Intent intent = new Intent(MainActivity.this,
+									DoBGTasksService.class);
+							intent.putExtra("CLIENTID",
+									((MyApplication) getApplicationContext())
+											.getClientId());
+							intent.putExtra(DoBGTasksService.App_State_Req,
+									SetAppState.SET_INACTIVE.ordinal());
+							startService(intent);
+						}
 						// Clear shared preferences..
 						((MyApplication) getApplicationContext()).clearAll();
 						// close all activities..

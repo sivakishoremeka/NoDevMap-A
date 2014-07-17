@@ -438,6 +438,7 @@ public void clearAll(){
 	setCurrency("");
 	setPayPalReq(false);
 	setPayPalClientID("");
+	isActive = false;
 	getEditor().clear().commit();
 }
 

@@ -190,6 +190,8 @@ public class ChannelsActivity extends Activity implements
 			break;
 		case R.id.action_activate:
 			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra("CLIENTID",
+					((MyApplication) getApplicationContext()).getClientId());
 			intent.putExtra(DoBGTasksService.App_State_Req,
 					SetAppState.SET_ACTIVE.ordinal());
 			startService(intent);
@@ -1172,14 +1174,16 @@ public class ChannelsActivity extends Activity implements
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						Intent intent = new Intent(ChannelsActivity.this,
-								DoBGTasksService.class);
-						intent.putExtra("CLIENTID",
-								((MyApplication) getApplicationContext())
-										.getClientId());
-						intent.putExtra(DoBGTasksService.App_State_Req,
-								SetAppState.SET_INACTIVE.ordinal());
-						startService(intent);
+						if (MyApplication.isActive) {
+							Intent intent = new Intent(ChannelsActivity.this,
+									DoBGTasksService.class);
+							intent.putExtra("CLIENTID",
+									((MyApplication) getApplicationContext())
+											.getClientId());
+							intent.putExtra(DoBGTasksService.App_State_Req,
+									SetAppState.SET_INACTIVE.ordinal());
+							startService(intent);
+						}
 						// Clear shared preferences..
 						((MyApplication) getApplicationContext()).clearAll();
 						// close all activities..

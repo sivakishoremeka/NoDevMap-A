@@ -46,10 +46,10 @@ public class DoBGTasksService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		Log.i("onHandleIntent", "onHandleIntent()");
 		int req = intent.getIntExtra(App_State_Req, -1);
-		String clientid = intent.getStringExtra("CLIENTID");
+		String clientId = intent.getStringExtra("CLIENTID");
 		Log.i("onHandleIntent-req", " : " + req);
-		if (req != -1 && clientid != null && clientid.length()>0) {
-			setAppState(req,clientid);
+		if (req != -1 && clientId != null && clientId.length()>0) {
+			setAppState(req,clientId);
 		}
 
 		int taskId = intent.getIntExtra(DoBGTasksService.TASK_ID, -1);
@@ -147,18 +147,19 @@ public class DoBGTasksService extends IntentService {
 		//stopSelf();
 	}
 
-	private void setAppState(int req,String clientid) {
+	private void setAppState(int req,String clientId) {
 
 		MyApplication appContext = ((MyApplication) getApplicationContext());
 		OBSClient mOBSClient = appContext.getOBSClient();
 		StatusReqDatum reqData = new StatusReqDatum();
+		reqData.setClientId(clientId);
 		reqData.setStatus(req == MyApplication.SetAppState.SET_ACTIVE.ordinal() ? "ACTIVE"
 				: "INACTIVE");
 		ResourceIdentifier result = null;
 		retrofit.RetrofitError error = null;
 		int status = -1;
 		try {
-			result = mOBSClient.updateAppStatus(clientid, reqData);
+			result = mOBSClient.updateAppStatus(clientId, reqData);
 		} catch (Exception e) {
 			error = ((retrofit.RetrofitError) e);
 			status = error.getResponse().getStatus();

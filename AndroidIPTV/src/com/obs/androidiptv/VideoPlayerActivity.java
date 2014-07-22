@@ -58,6 +58,7 @@ public class VideoPlayerActivity extends Activity implements
 	public int currentPosition = 0;
 	public int lastPosition = 0;
 	BufferrChk bChk = null;
+	public int MediaServerDiedCount = 0;
 	private Handler threadHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			if (msg.what == 1) {
@@ -111,8 +112,9 @@ public class VideoPlayerActivity extends Activity implements
 		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
+		MediaServerDiedCount = 0;
 		player = new MediaPlayer();
-
+		
 		mVideoType = getIntent().getStringExtra("VIDEOTYPE");
 		if (mVideoType.equalsIgnoreCase("LIVETV")) {
 			isLiveController = true;
@@ -318,13 +320,30 @@ public class VideoPlayerActivity extends Activity implements
 					Toast.LENGTH_LONG).show();
 		} else if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
 			// threadHandler.sendMessage(msg);
+			MediaServerDiedCount++;
+			if (MediaServerDiedCount < 2) {
+				Toast.makeText(getApplicationContext(),
+						"Server or Network Error.Please wait Connecting...",
+						Toast.LENGTH_LONG).show();
 
-			Toast.makeText(getApplicationContext(),
-					"Server or Network Error.Please wait Connecting...",
-					Toast.LENGTH_LONG).show();
-
-			reinitializeplayer();
-		} else {
+				reinitializeplayer();
+			} else {
+				stopThread = true;
+				if (player != null) {
+					if (player.isPlaying()) {
+						player.stop();
+						player.release();
+						player = null;
+					}
+				}
+				threadHandler.removeMessages(1);
+				threadHandler.removeMessages(0);
+				Toast.makeText(getApplicationContext(),
+						"Server or Network Error.Please try again.",
+						Toast.LENGTH_LONG).show();
+				finish();
+			}
+		}  else {
 			controller.mHandler.removeMessages(controller.SHOW_PROGRESS);
 			controller.mHandler.removeMessages(controller.FADE_OUT);
 			changeChannel(mChannelUri, mChannelId);
@@ -714,6 +733,7 @@ public class VideoPlayerActivity extends Activity implements
 		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
+		MediaServerDiedCount = 0;
 		player = new MediaPlayer();
 
 		mVideoType = getIntent().getStringExtra("VIDEOTYPE");
